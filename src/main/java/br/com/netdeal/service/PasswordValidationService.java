@@ -11,10 +11,6 @@ import java.util.regex.Pattern;
 @Service
 public class PasswordValidationService implements PasswordValidationInterface {
 
-    private String uppercaseLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    private String lowercaseLetters = "abcdefghijklmnopqrstuvwxyz";
-    private String numbers = "1234567890";
-
     private int getLength(String text) {
         if (text != null) {
             return text.length();
@@ -27,7 +23,7 @@ public class PasswordValidationService implements PasswordValidationInterface {
             String regex = "[0-9]+";
             Pattern pattern = Pattern.compile(regex);
             Matcher matcher = pattern.matcher(text);
-            return matcher.matches();
+            return matcher.find();
         }
         return false;
     }
@@ -37,7 +33,7 @@ public class PasswordValidationService implements PasswordValidationInterface {
             String regex = "[a-zA-Z]+";
             Pattern pattern = Pattern.compile(regex);
             Matcher matcher = pattern.matcher(text);
-            return matcher.matches();
+            return matcher.find();
         }
         return false;
     }
@@ -47,7 +43,7 @@ public class PasswordValidationService implements PasswordValidationInterface {
             String regex = "[A-Z]+";
             Pattern pattern = Pattern.compile(regex);
             Matcher matcher = pattern.matcher(text);
-            return matcher.matches();
+            return matcher.find();
         }
         return false;
     }
@@ -57,7 +53,7 @@ public class PasswordValidationService implements PasswordValidationInterface {
             String regex = "[a-z]+";
             Pattern pattern = Pattern.compile(regex);
             Matcher matcher = pattern.matcher(text);
-            return matcher.matches();
+            return matcher.find();
         }
         return false;
     }
@@ -70,15 +66,15 @@ public class PasswordValidationService implements PasswordValidationInterface {
     }
 
     private String getSymbols(String text) {
-        String result = "";
+        StringBuilder result = new StringBuilder();
         if (text != null) {
             String[] splitted = text.split("");
-            for (int index = 0; index < splitted.length; index++) {
-                if (this.isSymbol(splitted[index]))
-                    result += splitted[index];
+            for (String s : splitted) {
+                if (this.isSymbol(s))
+                    result.append(s);
             }
         }
-        return result;
+        return result.toString();
     }
 
     private int getLengthScore(String text) {
@@ -95,13 +91,13 @@ public class PasswordValidationService implements PasswordValidationInterface {
             int ratio = 2;
             String[] splitted = text.split("");
 
-            Integer n = Arrays.stream(splitted).map(x -> {
+            int n = Arrays.stream(splitted).map(x -> {
                 if (this.isUppercaseLetters(x)) {
                     return 1;
                 }else{
                     return 0;
                 }
-            }).reduce((x,y) -> x + y).orElse(0);
+            }).reduce(Integer::sum).orElse(0);
 
             if (n == 0) {
                 return 0;
@@ -116,13 +112,13 @@ public class PasswordValidationService implements PasswordValidationInterface {
             int ratio = 2;
             String[] splitted = text.split("");
 
-            Integer n = Arrays.stream(splitted).map(x -> {
+            int n = Arrays.stream(splitted).map(x -> {
                 if (this.isLowerCaseLetters(x)) {
                     return 1;
                 }else{
                     return 0;
                 }
-            }).reduce((x,y) -> x + y).orElse(0);
+            }).reduce(Integer::sum).orElse(0);
 
             if (n == 0) {
                 return 0;
@@ -137,13 +133,13 @@ public class PasswordValidationService implements PasswordValidationInterface {
             int ratio = 2;
             String[] splitted = text.split("");
 
-            Integer n = Arrays.stream(splitted).map(x -> {
+            int n = Arrays.stream(splitted).map(x -> {
                 if (this.isNumber(x)) {
                     return 1;
                 }else{
                     return 0;
                 }
-            }).reduce((x,y) -> x + y).orElse(0);
+            }).reduce(Integer::sum).orElse(0);
 
             if (n == 0) {
                 return 0;
@@ -158,13 +154,13 @@ public class PasswordValidationService implements PasswordValidationInterface {
             int ratio = 2;
             String[] splitted = text.split("");
 
-            Integer n = Arrays.stream(splitted).map(x -> {
+            int n = Arrays.stream(splitted).map(x -> {
                 if (this.isSymbol(x)) {
                     return 1;
                 }else{
                     return 0;
                 }
-            }).reduce((x,y) -> x + y).orElse(0);
+            }).reduce(Integer::sum).orElse(0);
 
             if (n == 0) {
                 return 0;
@@ -228,12 +224,11 @@ public class PasswordValidationService implements PasswordValidationInterface {
     }
 
     private String reverseString(String str) {
-        String reversed = new StringBuilder(str).reverse().toString();
-        return reversed;
+        return new StringBuilder(str).reverse().toString();
     }
 
     private String[] chunkString(String str, int len) {
-        int size = (int)Math.ceil(str.length() / len);
+        int size = str.length() / len;
         String[] ret = new String[size];
         int offset = 0;
         for (int i = 0; i < size; i++) {
@@ -245,9 +240,9 @@ public class PasswordValidationService implements PasswordValidationInterface {
 
     private List<String> distinctArray(String[] arr) {
         List<String> a = new ArrayList<String>();
-        for (int i = 0, l = arr.length; i < l; i++)
-            if (a.indexOf(arr[i]) == -1 && arr[i] != "")
-                a.add(arr[i]);
+        for (String s : arr)
+            if (!a.contains(s) && !"".equals(s))
+                a.add(s);
         return a;
     }
 
@@ -259,9 +254,9 @@ public class PasswordValidationService implements PasswordValidationInterface {
                 for (int index = 0; index < len; index++) {
                     String newText = text.substring(index, text.length());
                     String[] arr = this.chunkString(newText, i + minChunk);
-                    for (int j = 0; j < arr.length; j++) {
-                        list.add(arr[j]);
-                        list.add(this.reverseString(arr[j]));
+                    for (String s : arr) {
+                        list.add(s);
+                        list.add(this.reverseString(s));
                     }
                 }
             }
@@ -275,24 +270,13 @@ public class PasswordValidationService implements PasswordValidationInterface {
     private int getSequentialLettersScore(String text) {
         int minChunk = 3;
         if (text != null) {
-            String[] uStr = this.sequentialBuilder(this.uppercaseLetters, minChunk);
-            String[] lStr = this.sequentialBuilder(this.lowercaseLetters, minChunk);
-            int score = 0;
-            String uTxt = text;
-            String lTxt = text;
+            String uppercaseLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            String[] uStr = this.sequentialBuilder(uppercaseLetters, minChunk);
+            String lowercaseLetters = "abcdefghijklmnopqrstuvwxyz";
+            String[] lStr = this.sequentialBuilder(lowercaseLetters, minChunk);
 
-            for(String x : uStr){
-                if (uTxt.indexOf(x) != -1) {
-                    score += x.length() - (minChunk - 1);
-                    uTxt = uTxt.replace(x, "");
-                }
-            }
-            for(String x : lStr){
-                if (lTxt.indexOf(x) != -1) {
-                    score += x.length() - (minChunk - 1);
-                    lTxt = lTxt.replace(x, "");
-                }
-            }
+            int score = getScoreSequential(uStr, text, minChunk);
+            score += getScoreSequential(lStr, text, minChunk);
             // -(n*3)
             int ratio = -3;
             return score * ratio;
@@ -300,10 +284,23 @@ public class PasswordValidationService implements PasswordValidationInterface {
         return 0;
     }
 
+    private int getScoreSequential(String[] str, String text, int minChunk){
+        int score = 0;
+        String aux = text;
+        for(String x : str){
+            if (aux.contains(x)) {
+                score += x.length() - (minChunk - 1);
+                aux = aux.replace(x, "");
+            }
+        }
+        return score;
+    }
+
     private int getSequentialNumbersScore(String text) {
         int minChunk = 3;
         if (text != null) {
-            String[] num = this.sequentialBuilder(this.numbers, minChunk);
+            String numbers = "1234567890";
+            String[] num = this.sequentialBuilder(numbers, minChunk);
             return getSequentialScore(num, text, minChunk);
         }
         return 0;
@@ -323,7 +320,7 @@ public class PasswordValidationService implements PasswordValidationInterface {
         int score = 0;
         String txt = text;
         for(String x : str) {
-            if (txt.indexOf(x) != -1) {
+            if (txt.contains(x)) {
                 score += x.length() - (minChunk - 1);
                 txt = txt.replace(x, "");
             }
@@ -331,6 +328,27 @@ public class PasswordValidationService implements PasswordValidationInterface {
         // -(n*3)
         int ratio = -3;
         return score * ratio;
+    }
+
+    private int getRepeatCharactersScore(String text) {
+        if (text != null) {
+            String regex = "(\\w)\\1+";
+            Pattern pattern = Pattern.compile(regex);
+            Matcher matcher = pattern.matcher(text);
+            int maxResultLength = 0;
+            while(matcher.find()){
+                maxResultLength += matcher.end()-matcher.start();
+            }
+            if(maxResultLength == 0){
+                return 0;
+            }
+            int ratio = 0;
+            if (maxResultLength >= 1 && maxResultLength <= 5) ratio = -8;
+            if (maxResultLength >= 6 && maxResultLength <= 10) ratio = -5;
+            if (maxResultLength >= 11) ratio = -2;
+            return ratio * maxResultLength + (text.length() - maxResultLength * 2);
+        }
+        return 0;
     }
 
 
@@ -352,19 +370,19 @@ public class PasswordValidationService implements PasswordValidationInterface {
         int seqLetters = this.getSequentialLettersScore(senha);
         int seqNumbers = this.getSequentialNumbersScore(senha);
         int seqSymbols = this.getSequentialSymbolsScore(senha);
+        int repCharacters= this.getRepeatCharactersScore(senha);
 
         int score = len + upper + lower + num + symbol + letterOnly + numberOnly +
             consecutiveUpper + consecutiveLower + consecutiveNumber + seqLetters +
-            seqNumbers + seqSymbols;
+            seqNumbers + seqSymbols + repCharacters;
 
         Map<String, String> mapa = new HashMap<>();
-        mapa.put("complexity",getComplexity(score).toString());
+        mapa.put("complexity",getComplexity(score));
         mapa.put("score", getScorePorcentagem(score));
         return mapa;
     }
 
     public String getScorePorcentagem(int score){
-        String porcento = "0";
         if(score>100){
             return "100";
         }else if(score<0){
@@ -378,13 +396,13 @@ public class PasswordValidationService implements PasswordValidationInterface {
         String complexity = "Too Short";
         if(score>0 && score < 20){
             complexity = "Very Weak";
-        }else if(score < 40){
+        }else if(score>0 && score < 40){
             complexity = "Weak";
-        }else if(score < 60){
+        }else if(score>0 && score < 60){
             complexity = "Good";
-        }else if(score < 80){
+        }else if(score>0 && score < 80){
             complexity = "Strong";
-        }else if(score < 100){
+        }else if(score>0 && score < 100){
             complexity = "Very Strong";
         }else if(score >= 100){
             complexity = "Perfect";

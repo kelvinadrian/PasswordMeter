@@ -4,7 +4,6 @@ app.controller("PasswordValidationController", function($scope, $http) {
     $scope.senha = {"complexity": "too short", "score": "0"}
 
     $scope.validar = function(obj) {
-        console.log(obj);
         $http({
             url: '/validar',
             method: "POST",
