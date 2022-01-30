@@ -1,0 +1,36 @@
+<html ng-app="ValidatorManagement">
+
+    <head>
+        <meta charset="utf-8">
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.4/angular.js"></script>
+        <link rel="stylesheet" href="css/angular-material.min.css"/>
+        <link rel="stylesheet" href="css/index.css"/>
+        <title>Spring Boot AngularJS example</title>
+    </head>
+
+    <body>
+        <form id="form">
+            <div class="demo-container md-whiteframe-z1">
+                <p class="md-padding gray">AVALIADOR DE SEGURANÇA DE SENHA</p>
+                <div class="demo-container-interno" ng-controller="PasswordValidationController">
+                    <md-input-container>
+                        <input id="pass" ng-model="$scope.password" class="md-input" ng-keyup="validar($scope.password)" placeholder="Senha" type="password">
+                    </md-input-container>
+                    <div>
+                        <div id="scorebarBorder" class="inline">
+                            <div id="score">{{senha.score}}%</div>
+                            <div id="scorebar">&nbsp;</div>
+                        </div>
+                        <div class="inline descricao">
+                            {{senha.complexity}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+
+
+        <script src="js/app.js"></script>
+    </body>
+</html>

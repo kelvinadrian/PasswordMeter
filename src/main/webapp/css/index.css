@@ -1,0 +1,64 @@
+.demo-container{
+    border-radius: 4px;
+    margin-bottom: 16px;
+    transition: 0.02s padding cubic-bezier(0.35, 0, 0.25, 1);
+    position: relative;
+    padding-bottom: 0;
+    width: 564px;
+    height: 210px;
+}
+
+.gray{
+    color: gray;
+}
+
+.demo-container-interno{
+    background-color: lightgray;
+    height: 130px;
+    margin: 10px 15px 10px 15px !important;
+    width: 534px;
+}
+
+md-input-container{
+    margin-left: 40px !important;
+}
+md-input-container:not(.md-input-has-value):not(.md-input-has-placeholder) input:not(:focus) {
+    color: black !important;
+}
+
+#scorebarBorder {
+    background: #333;
+    border: 1px #000 solid;
+    height: 16px;
+    margin-bottom: 2px;
+    width: 100px;
+    margin-left: 40px;
+}
+
+#scorebar {
+    background-image: url(../images/bg_strength_gradient.jpg);
+    background-repeat: no-repeat;
+    background-position: 0 0;
+    position: absolute;
+    width: 100px;
+    z-index: 0;
+}
+
+#score {
+    color: #000;
+    font-size: 85%;
+    position: absolute;
+    text-align: center;
+    width: 100px;
+    z-index: 10;
+    font-weight: bold;
+}
+
+.inline{
+    display: inline-block;
+}
+
+.descricao{
+    height: 18px;
+    vertical-align: super;
+}
